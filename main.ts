@@ -1,34 +1,25 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, copyFileSync, statSync, writeFileSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { buildDossier } from "./vendor/makefun-frontend.ts";
+import { cpSync, mkdirSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+import { buildDossier } from './vendor/makefun-frontend.ts';
 
-const SOURCE_DIR = dirname(fileURLToPath(import.meta.url));
-const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR || "/output";
+/**
+ * The Leonida Ledger's entrypoint: copies app/ and screenshots/ into the
+ * output directory and writes the dossier buildDossier builds from them.
+ * Paths come from this file's own location, never from the working directory,
+ * because the grader runs it with a working directory that is not the repo.
+ */
+const here = dirname(fileURLToPath(import.meta.url));
+const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
-function main(): void {
-  if (!existsSync(OUTPUT_DIR)) mkdirSync(OUTPUT_DIR, { recursive: true });
-  copyDirectory(join(SOURCE_DIR, "app"), join(OUTPUT_DIR, "app"));
-  copyDirectory(join(SOURCE_DIR, "screenshots"), join(OUTPUT_DIR, "screenshots"));
-  const dossier = buildDossier(OUTPUT_DIR, {
-    text_max_bytes: 163840,
-    screenshots: { max: 4, max_bytes: 262144 },
-    app_max_files: 993,
-    app_max_bytes: 16777216,
-  });
-  // buildDossier returns the dossier file's bytes, not an object: write them as-is.
-  writeFileSync(join(OUTPUT_DIR, "dossier.json"), dossier);
-}
+mkdirSync(out, { recursive: true });
+cpSync(join(here, 'app'), join(out, 'app'), { recursive: true });
+cpSync(join(here, 'screenshots'), join(out, 'screenshots'), { recursive: true });
 
-function copyDirectory(from: string, to: string): void {
-  if (!existsSync(from)) return;
-  mkdirSync(to, { recursive: true });
-  for (const name of readdirSync(from)) {
-    const src = join(from, name);
-    const dst = join(to, name);
-    if (statSync(src).isDirectory()) copyDirectory(src, dst);
-    else copyFileSync(src, dst);
-  }
-}
-
-main();
+const dossier = buildDossier(out, {
+  text_max_bytes: 163840,
+  screenshots: { max: 4, max_bytes: 262144 },
+  app_max_files: 993,
+  app_max_bytes: 50331648,
+});
+writeFileSync(join(out, 'dossier.json'), dossier);

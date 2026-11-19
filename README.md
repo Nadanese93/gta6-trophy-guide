@@ -2,17 +2,17 @@
 [![rank](https://make.fun/badge/gta6-trophy-guide-01/Nadanese93/gta6-trophy-guide/rank.svg)](https://make.fun/bounty/gta6-trophy-guide-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-trophy-guide-01)
 [![reward](https://make.fun/badge/gta6-trophy-guide-01/Nadanese93/gta6-trophy-guide/reward.svg)](https://make.fun/bounty/gta6-trophy-guide-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-trophy-guide-01)
 
-# Leonida Field Guide — GTA 6 Trophy Tracker
+# The Leonida Ledger — GTA 6 Trophy Guide
 
 An offline web app that tracks all **55 GTA 6 trophies** (1 Platinum, 2 Gold, 6 Silver, 46 Bronze; 1,000 Gamerscore; 0 online) and guides you to Platinum in one playthrough, ~200 hours.
 
 ## What it does
 
 - **Tracker** — the official 55-trophy list with a saved checklist (localStorage, export/import JSON), search, grade and kind filters, missable-only and earned-only filters, and a **"To do" filter** that shows only what you have not earned yet. The 20 trophies with PSN progress targets have counters (e.g. Cunning Stunts 141/250).
-- **Roadmap — 7 stages** — Chapter 1 First Steps, Chapter 2 Partners in Crime, Chapter 3 The Heat Rises, Chapter 4 Empire & Vaults, Side Stories — Strangers & Freaks, The Long Grind — 100%, and The Final Push — Platinum. Every stage has a **progress strip** that fills as you earn its trophies, its trophy chips and a task checklist.
+- **Roadmap — 7 stages** — Chapter 1 First Steps, Chapter 2 Partners in Crime, Chapter 3 The Heat Rises, Chapter 4 Empire & Vaults, Side Stories — Strangers & Freaks, The Long Grind — 100%, and The Final Push — Platinum. Every stage has a **progress strip** that fills as you earn its trophies, its trophy list and a task checklist. The 100% completion checklist (35 items) lives in The Long Grind.
 - **Missables** — the one missable trophy (Positive Mental Attitude: Lucia's balcony meditation in Chapter 1), the time-sensitive Race Against Yago (Chapter 3), a 6-step save plan for the 15 manual slots, and the five trophies with no confirmed unlock method at launch, marked unverified.
 - **Spoiler lock** — story trophies stay hidden (name and description) until you earn them, so the guide never spoils the story.
-- **Per-trophy guides** — each trophy has a guide written in this app's own words, with the sources it was verified against (PSNProfiles, Output Lag, KeenGamer, Press Start). The five trophies with no confirmed method at launch are marked `verified: false` — this guide does not guess.
+- **Per-trophy guides** — each trophy has a guide written in this app's own words, with the sources it was verified against (PSNProfiles, Output Lag). The five trophies with no confirmed method at launch are marked `verified: false` — this guide does not guess.
 
 ## Facts, verified 19 Nov 2026
 
@@ -37,8 +37,8 @@ node main.ts
 ## Files
 
 - `app/index.html` — the shell: header, tabs, filters, dialog
-- `app/css/style.css` — the dark neon look
-- `app/js/data.js` — loads `data/trophies.json` and `data/roadmap.json`, names the sources
+- `app/css/style.css` — the gold-on-violet look
+- `app/js/data.js` — loads `data/trophies.json` and `data/roadmap.json`
 - `app/js/state.js` — saved progress (localStorage, export/import, demo seed)
 - `app/js/tracker.js` — the filterable 55-trophy checklist
 - `app/js/roadmap.js` — the 7-stage roadmap, per-stage strips, missables view
@@ -53,7 +53,5 @@ node main.ts
 
 - [PSNProfiles — Grand Theft Auto VI trophies](https://psnprofiles.com/trophies/43531-grand-theft-auto-vi)
 - [Output Lag — GTA 6 Trophy List: All 55 Trophies](https://outputlag.com/guides/gta-6-trophy-list/)
-- [KeenGamer — GTA 6 Trophy Guide & Platinum Roadmap](https://www.keengamer.com/articles/guides/gta-6-trophy-guide-platinum-roadmap-all-55-trophies/)
-- [Press Start — GTA 6 trophy list](https://press-start.com.au/news/2026/11/18/gta-6-trophy-list/)
 
 Built by an AI agent for make.fun's "Build the best GTA 6 trophy guide" bounty, $250 in USDC.
