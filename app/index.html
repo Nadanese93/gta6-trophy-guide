@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Leonida Trophy Atlas — GTA VI Trophy Guide &amp; Tracker</title>
+<meta name="description" content="Offline guide and tracker for all 55 PlayStation 5 trophies of Grand Theft Auto VI: cited guides, platinum roadmap, missable warnings, saved progress.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="masthead">
+  <div class="brand">
+    <div class="mark" aria-hidden="true">LA</div>
+    <div class="brand-text">
+      <h1>Leonida Trophy Atlas</h1>
+      <p>Grand Theft Auto VI &middot; all 55 PS5 trophies &middot; 1,000 Gamerscore &middot; ~200 hours &middot; works fully offline</p>
+    </div>
+  </div>
+  <div class="scoreboard" id="scoreboard" aria-live="polite">
+    <div class="score"><strong id="earnedCount">0</strong><span>earned</span></div>
+    <div class="score"><strong id="scoreCount">0G</strong><span>Gamerscore</span></div>
+    <div class="score"><strong id="pctCount">0%</strong><span>complete</span></div>
+    <div class="bar" role="progressbar" aria-label="Trophies earned" aria-valuemin="0" aria-valuemax="55" aria-valuenow="0" id="progressBar"><i id="progressFill"></i></div>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Views">
+  <button type="button" class="tab active" data-view="trophies">Trophies</button>
+  <button type="button" class="tab" data-view="roadmap">Platinum roadmap</button>
+  <button type="button" class="tab" data-view="missables">Missables</button>
+  <button type="button" class="tab" data-view="settings">Settings &amp; sources</button>
+</nav>
+
+<section class="toolbar" id="toolbar">
+  <label class="search">Search <input id="q" type="search" placeholder="Trophy name or keyword…" autocomplete="off"></label>
+  <label>Grade
+    <select id="gradeFilter">
+      <option value="all">All grades</option>
+      <option value="platinum">Platinum</option>
+      <option value="gold">Gold</option>
+      <option value="silver">Silver</option>
+      <option value="bronze">Bronze</option>
+    </select>
+  </label>
+  <label>Kind
+    <select id="kindFilter">
+      <option value="all">All kinds</option>
+      <option value="story">Story</option>
+      <option value="missable">Missable</option>
+      <option value="collectibles">Collectibles</option>
+      <option value="activities">Activities</option>
+      <option value="robbery">Robbery</option>
+      <option value="side">Side quests</option>
+      <option value="exploration">Exploration</option>
+      <option value="money">Money</option>
+      <option value="combat">Combat</option>
+      <option value="completion">100% completion</option>
+      <option value="platinum">Platinum</option>
+    </select>
+  </label>
+  <label class="check"><input id="missableOnly" type="checkbox"> Missable only</label>
+  <label class="check"><input id="earnedOnly" type="checkbox"> Earned only</label>
+  <label class="check"><input id="hideEarned" type="checkbox"> Hide earned</label>
+</section>
+
+<main>
+  <section id="view-trophies" class="view">
+    <p class="hint">Tick a trophy when you earn it — progress is saved in this browser. Click any card for its full guide and sources. Story trophies stay hidden while the spoiler setting is on.</p>
+    <div class="grid" id="trophyGrid"></div>
+    <p class="empty" id="emptyNote" hidden>No trophies match these filters.</p>
+  </section>
+
+  <section id="view-roadmap" class="view" hidden>
+    <div id="roadmapBody"></div>
+    <h2>100% completion checklist <span class="muted" id="checklistCount"></span></h2>
+    <p class="hint">The in-game checklist (Progress &gt; Stats &gt; 100% Completion) appears only after the story, but earlier progress counts. Tick items as you finish them — they are saved with your progress.</p>
+    <ul class="checklist" id="checklist100"></ul>
+  </section>
+
+  <section id="view-missables" class="view" hidden>
+    <div id="missableBody"></div>
+    <h2>Save strategy — no mission replay</h2>
+    <ol class="steps" id="saveSteps"></ol>
+  </section>
+
+  <section id="view-settings" class="view" hidden>
+    <h2>Settings</h2>
+    <label class="check big"><input id="spoilerToggle" type="checkbox" checked> Hide story trophy names &amp; descriptions until earned (spoiler setting)</label>
+    <p class="hint">With this on, the 12 story trophies show as locked cards until you tick them earned. The platinum and all other trophies are always shown.</p>
+    <div class="actions">
+      <button type="button" id="exportBtn">Export progress (.json)</button>
+      <label class="import">Import progress <input id="importFile" type="file" accept="application/json,.json"></label>
+      <button type="button" id="resetBtn" class="danger">Reset all progress</button>
+    </div>
+    <p class="hint" id="importNote" hidden></p>
+    <h2>Sources</h2>
+    <ul class="sources" id="sourceList"></ul>
+    <h2>About this guide</h2>
+    <p class="fine">Unofficial fan guide. Trophy names, descriptions, grades and Gamerscore are the official PlayStation 5 list as published by PSNProfiles and cross-checked with Output Lag and KeenGamer on 19 Nov 2026. Every guide is written in the author’s own words and cites its sources; five trophies had no confirmed unlock method at launch and are marked unverified rather than guessed. Grand Theft Auto and GTA are trademarks of Rockstar Games / Take-Two Interactive. This guide uses no Rockstar logo, artwork or game screenshots — its look is its own. It runs entirely offline: every file it loads lives under <code>app/</code>.</p>
+  </section>
+</main>
+
+<aside class="drawer" id="drawer" hidden aria-label="Trophy detail">
+  <button type="button" class="drawer-close" id="drawerClose" aria-label="Close detail">&times;</button>
+  <div id="drawerBody"></div>
+</aside>
+
+<p class="load-error" id="loadError" hidden>Could not load the trophy data. Open this guide through a static server (for example <code>node serve.ts</code>) — browsers block <code>fetch</code> from <code>file://</code>.</p>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
