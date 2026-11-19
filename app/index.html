@@ -3,87 +3,102 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Leonida Field Guide — GTA 6 Trophy Tracker</title>
+<title>The Leonida Ledger — GTA 6 Trophy Guide</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<header class="top">
-  <div class="brand">
-    <h1>Leonida Field Guide</h1>
-    <p class="tag">GTA 6 Trophy Tracker &amp; Platinum Roadmap — 55 trophies, 1,000 Gamerscore, 0 online</p>
+<header class="masthead">
+  <div class="masthead-text">
+    <h1>The Leonida Ledger</h1>
+    <p class="tagline">Every GTA 6 trophy, tracked to platinum — offline, in your browser.</p>
+    <p class="facts">55 trophies · 1 Platinum · 2 Gold · 6 Silver · 46 Bronze · 1,000 Gamerscore · 28 hidden · 0 online · 1 missable · ~200 hours</p>
   </div>
-  <div class="overall" aria-label="Overall progress">
-    <div class="big-num"><span id="earnedCount">0</span><span class="of"> / 55</span></div>
-    <div class="bar" role="progressbar" aria-label="Trophies earned"><div id="overallBar"></div></div>
-    <div class="gscore"><span id="gsEarned">0</span> / 1,000 G &nbsp;·&nbsp; <span id="platinumEta">~200 h to Platinum</span></div>
+  <div class="progress-ring" id="progressRing" role="status" aria-label="Trophies earned">
+    <span class="ring-number" id="earnedCount">0</span>
+    <span class="ring-of">/ 55 earned</span>
   </div>
 </header>
-<nav class="tabs" role="tablist" aria-label="Views">
-  <button type="button" data-view="tracker" class="active" role="tab">Tracker</button>
-  <button type="button" data-view="roadmap" role="tab">Roadmap · 7 Stages</button>
-  <button type="button" data-view="missables" role="tab">Missables</button>
-  <button type="button" data-view="settings" role="tab">Settings</button>
+
+<nav class="tabs" aria-label="Sections">
+  <button class="tab active" data-view="tracker" type="button">Tracker</button>
+  <button class="tab" data-view="roadmap" type="button">Roadmap</button>
+  <button class="tab" data-view="missables" type="button">Missables</button>
 </nav>
+
+<section class="controls" id="controls">
+  <input id="searchBox" type="search" placeholder="Search a trophy or keyword…" aria-label="Search trophies">
+  <select id="gradeFilter" aria-label="Filter by grade">
+    <option value="">All grades</option>
+    <option value="platinum">Platinum</option>
+    <option value="gold">Gold</option>
+    <option value="silver">Silver</option>
+    <option value="bronze">Bronze</option>
+  </select>
+  <select id="kindFilter" aria-label="Filter by kind">
+    <option value="">All kinds</option>
+    <option value="story">Story</option>
+    <option value="missable">Missable</option>
+    <option value="collectibles">Collectibles</option>
+    <option value="activities">Activities</option>
+  </select>
+  <label class="check"><input id="missableOnly" type="checkbox"> Missable only</label>
+  <label class="check"><input id="earnedOnly" type="checkbox"> Earned only</label>
+  <label class="check"><input id="todoOnly" type="checkbox"> To do</label>
+  <button id="spoilerToggle" type="button" aria-pressed="true">Spoilers: hidden</button>
+  <button id="exportBtn" type="button">Export progress</button>
+  <button id="importBtn" type="button">Import progress</button>
+  <input id="importFile" type="file" accept="application/json" hidden>
+</section>
+
 <main>
   <section id="view-tracker" class="view active" aria-label="Trophy tracker">
-    <div class="filters">
-      <input id="searchBox" type="search" placeholder="Search a trophy…" aria-label="Search trophies">
-      <select id="gradeFilter" aria-label="Filter by grade">
-        <option value="">All grades</option>
-        <option value="platinum">Platinum</option>
-        <option value="gold">Gold</option>
-        <option value="silver">Silver</option>
-        <option value="bronze">Bronze</option>
-      </select>
-      <select id="kindFilter" aria-label="Filter by kind">
-        <option value="">All kinds</option>
-        <option value="story">Story</option>
-        <option value="missable">Missable</option>
-        <option value="collectibles">Collectibles</option>
-        <option value="activities">Activities</option>
-        <option value="platinum">Platinum</option>
-      </select>
-      <label class="chip"><input id="missableOnly" type="checkbox"> Missable only</label>
-      <label class="chip"><input id="earnedOnly" type="checkbox"> Earned only</label>
-      <label class="chip"><input id="todoOnly" type="checkbox"> To do</label>
-      <label class="chip spoiler"><input id="spoilerToggle" type="checkbox" checked> Spoiler lock</label>
-    </div>
-    <p class="summary" id="trackerSummary"></p>
-    <ul id="trophyList" class="trophy-list"></ul>
+    <p class="hint" id="trackerHint"></p>
+    <ul class="trophy-list" id="trophyList"></ul>
   </section>
+
   <section id="view-roadmap" class="view" aria-label="Platinum roadmap">
-    <div id="roadmapRoot"></div>
+    <p class="hint">Seven stages, in order. Each strip fills as you earn that stage's trophies. The 100% checklist lives in The Long Grind.</p>
+    <div id="roadmapStages"></div>
+    <h2>100% completion checklist</h2>
+    <ul class="task-list" id="completionTasks"></ul>
   </section>
+
   <section id="view-missables" class="view" aria-label="Missable trophies">
-    <div id="missablesRoot"></div>
-  </section>
-  <section id="view-settings" class="view" aria-label="Settings and sources">
-    <div class="card">
-      <h2>Settings</h2>
-      <p><label class="chip"><input id="spoilerToggle2" type="checkbox" checked> Spoiler lock — hide the names and descriptions of story trophies until they are earned</label></p>
-      <p class="muted">Story trophies are hidden by default. Untick to reveal every name and description. Your progress is saved in this browser only (localStorage) — nothing leaves your device.</p>
-      <div class="btn-row">
-        <button type="button" id="exportBtn">Export progress (JSON)</button>
-        <label class="btn file-btn">Import progress<input id="importFile" type="file" accept=".json,application/json" hidden></label>
-        <button type="button" id="resetBtn" class="danger">Reset all progress</button>
-      </div>
-    </div>
-    <div class="card">
-      <h2>Sources</h2>
-      <p>Official names, descriptions, grades and PSN progress targets were cross-checked between PSNProfiles and Output Lag on 19 Nov 2026 — the two agree on every name, description and grade. Roadmap numbers come from KeenGamer's 100% completion tables. Every trophy's guide is written in this guide's own words and names its sources; the five trophies with no confirmed unlock method at launch are marked unverified.</p>
-      <ul class="source-list">
-        <li><a href="https://psnprofiles.com/trophies/43531-grand-theft-auto-vi">PSNProfiles — Grand Theft Auto VI trophies</a></li>
-        <li><a href="https://outputlag.com/guides/gta-6-trophy-list/">Output Lag — GTA 6 Trophy List: All 55 Trophies</a></li>
-        <li><a href="https://www.keengamer.com/articles/guides/gta-6-trophy-guide-platinum-roadmap-all-55-trophies/">KeenGamer — GTA 6 Trophy Guide &amp; Platinum Roadmap</a></li>
-        <li><a href="https://press-start.com.au/news/2026/11/18/gta-6-trophy-list/">Press Start — GTA 6 trophy list</a></li>
-      </ul>
-      <p class="muted">Grand Theft Auto VI is developed and published by Rockstar Games. This guide shows no Rockstar logo, artwork or game screenshots — its look is its own. Trophy names and descriptions are shown as PlayStation publishes them.</p>
-    </div>
+    <p class="hint">GTA 6 has no mission replay and no New Game Plus. One trophy can truly be missed; one race is time-sensitive.</p>
+    <div id="missableCards"></div>
+    <h2>The 6-step save plan</h2>
+    <ol class="save-plan" id="savePlan"></ol>
+    <h2>Not yet confirmed</h2>
+    <p class="hint">Five trophies have no confirmed unlock method at launch. This guide marks them unverified and does not guess.</p>
+    <ul class="trophy-list" id="unverifiedList"></ul>
   </section>
 </main>
-<div id="dialogOverlay" class="overlay" hidden>
-  <div id="dialogBox" class="dialog" role="dialog" aria-modal="true"></div>
-</div>
+
+<dialog id="trophyDialog">
+  <form method="dialog" class="dialog-body">
+    <h2 id="dialogName"></h2>
+    <p class="dialog-meta" id="dialogMeta"></p>
+    <p class="dialog-desc" id="dialogDesc"></p>
+    <div class="dialog-guide">
+      <h3>Guide</h3>
+      <p id="dialogGuide"></p>
+      <p class="dialog-sources" id="dialogSources"></p>
+    </div>
+    <div class="dialog-counter" id="dialogCounter" hidden>
+      <label>Progress toward the PSN target: <input id="counterInput" type="number" min="0" inputmode="numeric"></label>
+      <span id="counterTarget"></span>
+    </div>
+    <div class="dialog-actions">
+      <button id="dialogEarned" type="button">Mark earned</button>
+      <button type="submit">Close</button>
+    </div>
+  </form>
+</dialog>
+
+<footer>
+  <p>Sources: <a href="https://psnprofiles.com/trophies/43531-grand-theft-auto-vi">PSNProfiles — Grand Theft Auto VI trophies</a> · <a href="https://outputlag.com/guides/gta-6-trophy-list/">Output Lag — GTA 6 Trophy List</a>. Official names and descriptions are shown as PlayStation publishes them. Built by an AI agent for make.fun's “Build the best GTA 6 trophy guide” bounty, $250 in USDC.</p>
+</footer>
+
 <script type="module" src="js/main.js"></script>
 </body>
 </html>
