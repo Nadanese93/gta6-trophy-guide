@@ -1,108 +1,114 @@
-/* Boot: loads the data, wires the tabs, filters and settings, then renders. */
-import { loadTrophies, loadRoadmap } from "./data.js";
-import { loadState, saveState, exportState, importState, seedDemo } from "./state.js";
-import { renderTracker, renderOverall } from "./tracker.js";
-import { renderRoadmap, renderMissables } from "./roadmap.js";
+/** Boot: loads the data, renders the three views, wires filters, tabs and import/export. */
+import { loadData } from './data.js';
+import { loadState, saveState, applyDemo, exportProgress, importProgress } from './state.js';
+import { renderTracker } from './tracker.js';
+import { renderRoadmap, renderCompletionTasks, renderMissables } from './roadmap.js';
+import { wireDialogCounter } from './guide.js';
 
-const state = loadState();
-let trophies = [];
-let roadmap = null;
+const filters = { query: '', grade: '', kind: '', missableOnly: false, earnedOnly: false, todoOnly: false };
 
 async function boot() {
-  try {
-    trophies = await loadTrophies();
-    roadmap = await loadRoadmap();
-  } catch (err) {
-    document.getElementById("trophyList").innerHTML =
-      `<li class="muted">Could not load the trophy list (${err.message}). Check that data/trophies.json and data/roadmap.json are next to index.html.</li>`;
-    return;
+  const { trophies, roadmap } = await loadData();
+  let state = applyDemo(loadState());
+  if (!state.completionTasks) state.completionTasks = {};
+
+  const listEl = document.getElementById('trophyList');
+  const hintEl = document.getElementById('trackerHint');
+  const ringEl = document.getElementById('earnedCount');
+
+  function renderAll() {
+    saveState(state);
+    ringEl.textContent = String(state.earned.length);
+    renderTracker(listEl, hintEl, trophies, filters, state, toggleEarned);
+    renderRoadmap(document.getElementById('roadmapStages'), trophies, roadmap, state);
+    renderCompletionTasks(document.getElementById('completionTasks'), roadmap, state, toggleTask);
+    renderMissables(
+      document.getElementById('missableCards'),
+      document.getElementById('unverifiedList'),
+      trophies,
+      roadmap,
+      state,
+    );
+    document.getElementById('spoilerToggle').textContent = state.spoilers ? 'Spoilers: hidden' : 'Spoilers: shown';
+    document.getElementById('spoilerToggle').setAttribute('aria-pressed', String(state.spoilers));
   }
-  const params = new URLSearchParams(location.search);
-  if (params.get("demo") === "1") {
-    seedDemo(state);
+
+  function toggleEarned(name, earned) {
+    if (earned && !state.earned.includes(name)) state.earned.push(name);
+    if (!earned) state.earned = state.earned.filter((n) => n !== name);
+    renderAll();
+  }
+
+  function toggleTask(key, done) {
+    if (!state.completionTasks) state.completionTasks = {};
+    state.completionTasks[key] = done;
     saveState(state);
   }
-  renderAll();
-  wireTabs();
-  wireFilters();
-  wireSettings();
-}
 
-/** Renders every view and the header. */
-function renderAll() {
-  renderTracker(trophies, state);
-  renderOverall(trophies, state);
-  renderRoadmap(trophies, roadmap, state);
-  renderMissables(trophies, roadmap, state);
-  syncSpoilerToggles();
-}
-
-/** Keeps the two spoiler checkboxes in sync. */
-function syncSpoilerToggles() {
-  document.getElementById("spoilerToggle").checked = state.spoiler;
-  document.getElementById("spoilerToggle2").checked = state.spoiler;
-}
-
-/** Wires the four view tabs. */
-function wireTabs() {
-  document.querySelectorAll(".tabs button").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".tabs button").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      document.querySelectorAll(".view").forEach((v) => v.classList.remove("active"));
-      document.getElementById(`view-${btn.dataset.view}`).classList.add("active");
-    });
+  wireDialogCounter(state, (name, value) => {
+    state.counts[name] = value;
+    renderAll();
   });
-}
 
-/** Wires the filter bar so any change re-renders the tracker. */
-function wireFilters() {
-  for (const id of ["searchBox", "gradeFilter", "kindFilter", "missableOnly", "earnedOnly", "todoOnly"]) {
-    document.getElementById(id).addEventListener("input", () => renderTracker(trophies, state));
-  }
-  for (const id of ["spoilerToggle", "spoilerToggle2"]) {
-    document.getElementById(id).addEventListener("change", (e) => {
-      state.spoiler = e.target.checked;
-      saveState(state);
-      renderAll();
-    });
-  }
-  document.addEventListener("progress-changed", () => {
-    renderOverall(trophies, state);
-    renderRoadmap(trophies, roadmap, state);
+  document.getElementById('searchBox').addEventListener('input', (e) => {
+    filters.query = e.target.value;
+    renderTracker(listEl, hintEl, trophies, filters, state, toggleEarned);
   });
-}
-
-/** Wires export, import and reset in Settings. */
-function wireSettings() {
-  document.getElementById("exportBtn").addEventListener("click", () => {
-    const blob = new Blob([exportState(state)], { type: "application/json" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "leonida-field-guide-progress.json";
-    a.click();
-    URL.revokeObjectURL(a.href);
+  document.getElementById('gradeFilter').addEventListener('change', (e) => {
+    filters.grade = e.target.value;
+    renderTracker(listEl, hintEl, trophies, filters, state, toggleEarned);
   });
-  document.getElementById("importFile").addEventListener("change", async (e) => {
+  document.getElementById('kindFilter').addEventListener('change', (e) => {
+    filters.kind = e.target.value;
+    renderTracker(listEl, hintEl, trophies, filters, state, toggleEarned);
+  });
+  document.getElementById('missableOnly').addEventListener('change', (e) => {
+    filters.missableOnly = e.target.checked;
+    renderTracker(listEl, hintEl, trophies, filters, state, toggleEarned);
+  });
+  document.getElementById('earnedOnly').addEventListener('change', (e) => {
+    filters.earnedOnly = e.target.checked;
+    renderTracker(listEl, hintEl, trophies, filters, state, toggleEarned);
+  });
+  document.getElementById('todoOnly').addEventListener('change', (e) => {
+    filters.todoOnly = e.target.checked;
+    renderTracker(listEl, hintEl, trophies, filters, state, toggleEarned);
+  });
+  document.getElementById('spoilerToggle').addEventListener('click', () => {
+    state.spoilers = !state.spoilers;
+    renderAll();
+  });
+  document.getElementById('exportBtn').addEventListener('click', () => exportProgress(state));
+  document.getElementById('importBtn').addEventListener('click', () => {
+    document.getElementById('importFile').click();
+  });
+  document.getElementById('importFile').addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const next = importState(await file.text());
-    if (!next) {
-      alert("That file is not a Leonida Field Guide export.");
-      return;
+    try {
+      state = await importProgress(file);
+      if (!state.completionTasks) state.completionTasks = {};
+      renderAll();
+    } catch {
+      alert('That file is not a Leonida Ledger progress export.');
     }
-    Object.assign(state, next);
-    saveState(state);
-    renderAll();
+    e.target.value = '';
   });
-  document.getElementById("resetBtn").addEventListener("click", () => {
-    if (!confirm("Reset all progress? Earned trophies, counters and checklist ticks are all cleared.")) return;
-    state.earned = new Set();
-    state.counts = {};
-    state.tasks = {};
-    saveState(state);
-    renderAll();
+
+  document.querySelectorAll('.tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+      document.querySelectorAll('.view').forEach((v) => v.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(`view-${tab.dataset.view}`).classList.add('active');
+      const showControls = tab.dataset.view === 'tracker';
+      document.getElementById('controls').style.display = showControls ? '' : 'none';
+    });
   });
+
+  renderAll();
 }
 
-boot();
+boot().catch((err) => {
+  document.getElementById('trophyList').innerHTML = `<li class="trophy-row">The guide could not load its data (${err.message}).</li>`;
+});
